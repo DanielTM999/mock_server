@@ -28,9 +28,15 @@ public class MockServerhandler implements HttpHandler{
                     response = serverModel.getResponse().toString();
                     exchange.sendResponseHeaders(statusCode, response.length());
                 }else{
-                    ObjectMapper mapper = new ObjectMapper();
-                    response = mapper.writeValueAsString(serverModel.getResponse());
-                    statusCode = getCode(serverModel.getResponse());
+                    try {
+                        ObjectMapper mapper = new ObjectMapper();
+                        response = mapper.writeValueAsString(serverModel.getResponse());
+                        statusCode = getCode(serverModel.getResponse());
+                    } catch (Exception e) {
+                        String error = "{\"serverError\": \"%s\"}";
+                        response = String.format(error, (e.getMessage() == null) ? "" : e.getMessage());
+                        statusCode = 500;
+                    }
                     exchange.sendResponseHeaders(statusCode, response.length());
                 }
             }
