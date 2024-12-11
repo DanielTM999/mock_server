@@ -32,7 +32,7 @@ Certifique-se de ter as dependências necessárias no seu projeto.
 Use o método `registerEndpoint` para adicionar os endpoints desejados. Você pode passar um objeto de resposta, uma string ou um caminho para um arquivo JSON.
 
 ```java
-    MockServerHttp server = new MockServerHttp(8081);
+    MockServer server = new MockServerHttp(8081);
     server.registerEndpoint("/api/test", HttpMethod.GET, "Resposta mockada", false);
     server.registerEndpoint("/api/test", HttpMethod.GET, "/json/jsonresponse.json", true);
 ```

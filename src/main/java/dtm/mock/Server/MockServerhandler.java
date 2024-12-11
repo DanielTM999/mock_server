@@ -31,6 +31,7 @@ public class MockServerhandler implements HttpHandler{
                     ObjectMapper mapper = new ObjectMapper();
                     response = mapper.writeValueAsString(serverModel.getResponse());
                     statusCode = getCode(serverModel.getResponse());
+                    exchange.sendResponseHeaders(statusCode, response.length());
                 }
             }
             OutputStream os = exchange.getResponseBody();
