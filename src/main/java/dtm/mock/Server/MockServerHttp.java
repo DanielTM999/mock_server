@@ -9,6 +9,7 @@ import java.util.Map;
 
 import com.sun.net.httpserver.HttpServer;
 
+import dtm.mock.anotations.MockHttpRouteConfiguaration;
 import dtm.mock.core.MockServer;
 import dtm.mock.core.enums.HttpMethod;
 
@@ -20,6 +21,38 @@ public class MockServerHttp implements MockServer{
     public MockServerHttp(int port){
         this.port = port;
         mockEndpoints = new HashMap<>();
+    }
+
+    @Override
+    public void registerEndpoint(Object mockResponse){
+        Class<?> mockResponseClass = mockResponse.getClass();
+
+        String className = mockResponseClass.getName();
+        String endpoint = className.replace('.', '/');
+        HttpMethod httpMethod = HttpMethod.GET;
+
+        if(mockResponseClass.isAnnotationPresent(MockHttpRouteConfiguaration.class)){
+            MockHttpRouteConfiguaration configuaration = mockResponseClass.getAnnotation(MockHttpRouteConfiguaration.class);
+            endpoint = configuaration.route();
+            httpMethod = configuaration.httpMethod();
+        }
+
+        MockServerModel model = new MockServerModel();
+        model.setEndpoint(endpoint);
+        model.setHttpMethod(httpMethod);
+        model.setResponse(mockResponse);
+        mockEndpoints.put(endpoint, model);
+
+    }
+
+    @Override
+    public void registerEndpoint(Class<?> mockResponse){
+        try {
+            Object responseInstance = mockResponse.getDeclaredConstructor().newInstance();
+            registerEndpoint(responseInstance);
+        }catch (Exception e) {
+            throw new RuntimeException("Failed to create mock response instance", e);
+        }
     }
 
     @Override
