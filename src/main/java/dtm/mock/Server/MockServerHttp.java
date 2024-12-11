@@ -104,7 +104,7 @@ public class MockServerHttp implements MockServer{
     public void run() throws Exception{
         server = HttpServer.create(new InetSocketAddress(port), 0);
         mockEndpoints.forEach((k, v) -> {
-            server.createContext(k, new MockServerhandler(v));
+            server.createContext("/", new MockServerhandler(v));
         });
         server.setExecutor(null);
         server.start();

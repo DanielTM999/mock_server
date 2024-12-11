@@ -19,7 +19,6 @@ public class MockServerhandler implements HttpHandler{
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        
         if(validEndPoint(exchange)){
             String response = "{}";
             int statusCode = 200;
@@ -57,6 +56,7 @@ public class MockServerhandler implements HttpHandler{
     private boolean validEndPoint(HttpExchange exchange) throws IOException{
         String requestedEndpoint = exchange.getRequestURI().getPath();
         String httpMethod = exchange.getRequestMethod();
+        
         if (!httpMethod.equalsIgnoreCase(serverModel.getHttpMethod().toString())) {
             sendResponse(exchange, 405, "Method Not Allowed");
             return false;
