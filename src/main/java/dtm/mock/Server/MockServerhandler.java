@@ -56,13 +56,19 @@ public class MockServerhandler implements HttpHandler{
     
     private boolean validEndPoint(HttpExchange exchange) throws IOException{
         String requestedEndpoint = exchange.getRequestURI().getPath();
-        if(!exchange.getRequestMethod().equalsIgnoreCase(serverModel.getHttpMethod().toString())){
+        String httpMethod = exchange.getRequestMethod();
+        if (!httpMethod.equalsIgnoreCase(serverModel.getHttpMethod().toString())) {
             sendResponse(exchange, 405, "Method Not Allowed");
             return false;
-        }else if(!requestedEndpoint.equalsIgnoreCase(serverModel.getEndpoint())){
+        }
+
+        String endpointPattern = serverModel.getEndpoint().replaceAll("\\{[^/]+\\}", "[^/]+");
+
+        if (!requestedEndpoint.matches(endpointPattern)) {
             sendResponse(exchange, 404, "Not Found");
             return false;
         }
+
         return true;
     }
 
