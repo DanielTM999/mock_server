@@ -7,13 +7,14 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dtm.mock.anotations.MockHttpStatusCode;
-import dtm.mock.core.http.HttpAction;
-import dtm.mock.core.http.HttpRequest;
-import dtm.mock.core.http.HttpResponse;
+import dtm.servers.http.core.HttpConnection;
+import dtm.servers.http.core.HttpServerRequest;
+import dtm.servers.http.core.HttpServerResponse;
+import dtm.servers.http.core.RouteExecutor;
 
 
 
-public class MockServerhandler implements HttpAction{
+public class MockServerhandler implements RouteExecutor{
     private List<MockServerModel> serverModelList;
     private MockServerModel serverModel;
 
@@ -22,9 +23,11 @@ public class MockServerhandler implements HttpAction{
     }
 
     @Override
-    public void execute(HttpRequest request, HttpResponse response){
+    public void execute(HttpConnection arg0) {
         try {
-            if(validEndPoint(response, request)){
+            HttpServerResponse responseServer = arg0.getResponse();
+            HttpServerRequest requestServer = arg0.getRequest();
+            if(validEndPoint(responseServer, requestServer)){
                 String responseValue = "{}";
                 int statusCode = 200;
                 
@@ -43,12 +46,12 @@ public class MockServerhandler implements HttpAction{
                         }
                     }
     
-                    sendResponse(response, statusCode, responseValue, new HashMap<>(){{
+                    sendResponse(responseServer, statusCode, responseValue, new HashMap<>(){{
                         put("Content-Type", "application/json");
                     }});
                 }
             }
-        } catch (Exception e) {
+        }catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -61,9 +64,9 @@ public class MockServerhandler implements HttpAction{
         return 200;
     }
     
-    private boolean validEndPoint(HttpResponse exchange, HttpRequest req) throws IOException{
+    private boolean validEndPoint(HttpServerResponse exchange, HttpServerRequest req) throws IOException{
         String requestedEndpoint = req.getRoute();
-        String httpMethod = req.getHtttpMethod();
+        String httpMethod = req.getHttpMethod();
 
         for (MockServerModel mockServerModel : serverModelList) {
             String endpointPattern = mockServerModel.getEndpoint().replaceAll("\\{[^/]+\\}", "[^/]+");
@@ -90,17 +93,18 @@ public class MockServerhandler implements HttpAction{
         return true;
     }
 
-    private void sendResponse(HttpResponse resp, int statusCode, String responseBody) throws IOException {
+    private void sendResponse(HttpServerResponse resp, int statusCode, String responseBody) throws IOException {
         resp.statusCode(statusCode);
         resp.append(responseBody);
     }
 
-    private void sendResponse(HttpResponse resp, int statusCode, String responseBody, Map<String, String> headers) throws IOException {
+    private void sendResponse(HttpServerResponse resp, int statusCode, String responseBody, Map<String, String> headers) throws IOException {
         resp.statusCode(statusCode);
         for (Map.Entry<String, String> entry: headers.entrySet()) {
             resp.addHeader(entry.getKey(), entry.getValue());
         }
         resp.append(responseBody);
     }
+
 
 }

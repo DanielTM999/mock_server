@@ -5,10 +5,11 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import dtm.mock.Server.http.HttpServer;
 import dtm.mock.anotations.MockHttpRouteConfiguaration;
 import dtm.mock.core.MockServer;
 import dtm.mock.core.enums.HttpMethod;
+import dtm.servers.http.core.HttpServer;
+import dtm.servers.http.io.HttpServerIO;
 
 
 public class MockServerHttp implements MockServer{
@@ -100,9 +101,9 @@ public class MockServerHttp implements MockServer{
 
     @Override
     public void run() throws Exception{
-        server = new HttpServer(port);
-
-        server.start(new MockServerhandler(mockEndpoints), String.format("Servidor MOCK rodando na porta %d...", port));
+        server = new HttpServerIO(port, "localhost");
+        server.setRouteExecutor(new MockServerhandler(mockEndpoints));
+        server.start();
     }
 
     private String readJson(String path) throws Exception{
