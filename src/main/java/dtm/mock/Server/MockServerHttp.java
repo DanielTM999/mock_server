@@ -4,11 +4,11 @@ import java.io.File;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
-
+import java.util.List;
+import java.util.stream.Collectors;
 import com.sun.net.httpserver.HttpServer;
-
 import dtm.mock.anotations.MockHttpRouteConfiguaration;
 import dtm.mock.core.MockServer;
 import dtm.mock.core.enums.HttpMethod;
@@ -16,11 +16,11 @@ import dtm.mock.core.enums.HttpMethod;
 public class MockServerHttp implements MockServer{
     private HttpServer server;  
     private int port = 8081;
-    private final Map<String, MockServerModel> mockEndpoints;
+    private final List<MockServerModel> mockEndpoints;
 
     public MockServerHttp(int port){
         this.port = port;
-        mockEndpoints = new HashMap<>();
+        mockEndpoints = new ArrayList<>();
     }
 
     @Override
@@ -41,7 +41,7 @@ public class MockServerHttp implements MockServer{
         model.setEndpoint(endpoint);
         model.setHttpMethod(httpMethod);
         model.setResponse(mockResponse);
-        mockEndpoints.put(endpoint, model);
+        mockEndpoints.add(model);
 
     }
 
@@ -63,7 +63,7 @@ public class MockServerHttp implements MockServer{
             model.setEndpoint(endpoint);
             model.setHttpMethod(httpMethods);
             model.setResponse(responseInstance);
-            mockEndpoints.put(endpoint, model);
+            mockEndpoints.add(model);
         } catch (Exception e) {
             throw new RuntimeException("Failed to create mock response instance", e);
         }
@@ -80,7 +80,7 @@ public class MockServerHttp implements MockServer{
             model.setEndpoint(endpoint);
             model.setHttpMethod(httpMethods);
             model.setResponse(response);
-            mockEndpoints.put(endpoint, model);
+            mockEndpoints.add(model);
         } catch (Exception e) {
             throw new RuntimeException("Failed to create mock response instance", e);
         }
@@ -92,7 +92,7 @@ public class MockServerHttp implements MockServer{
         model.setEndpoint(endpoint);
         model.setHttpMethod(httpMethods);
         model.setResponse(mockResponse);
-        mockEndpoints.put(endpoint, model);
+        mockEndpoints.add(model);
     }
 
     @Override
@@ -103,9 +103,7 @@ public class MockServerHttp implements MockServer{
     @Override
     public void run() throws Exception{
         server = HttpServer.create(new InetSocketAddress(port), 0);
-        mockEndpoints.forEach((k, v) -> {
-            server.createContext("/", new MockServerhandler(v));
-        });
+        server.createContext("/", new MockServerhandler(this.mockEndpoints));
         server.setExecutor(null);
         server.start();
         System.out.println(String.format("Servidor MOCK rodando na porta %d...", port));

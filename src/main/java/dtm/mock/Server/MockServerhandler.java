@@ -2,6 +2,7 @@ package dtm.mock.Server;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
@@ -10,12 +11,12 @@ import com.sun.net.httpserver.HttpHandler;
 import dtm.mock.anotations.MockHttpStatusCode;
 
 public class MockServerhandler implements HttpHandler{
+    private List<MockServerModel> serverModelList;
     private MockServerModel serverModel;
 
-    public MockServerhandler(MockServerModel serverModel){
-        this.serverModel = serverModel;
+    public MockServerhandler(List<MockServerModel> serverModels){
+        this.serverModelList = serverModels;
     }
-
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
@@ -56,8 +57,18 @@ public class MockServerhandler implements HttpHandler{
     private boolean validEndPoint(HttpExchange exchange) throws IOException{
         String requestedEndpoint = exchange.getRequestURI().getPath();
         String httpMethod = exchange.getRequestMethod();
-        
-        if (!httpMethod.equalsIgnoreCase(serverModel.getHttpMethod().toString())) {
+
+        for (MockServerModel mockServerModel : serverModelList) {
+            String endpointPattern = serverModel.getEndpoint().replaceAll("\\{[^/]+\\}", "[^/]+");
+            
+            if(requestedEndpoint.matches(endpointPattern) && httpMethod.equalsIgnoreCase(serverModel.getHttpMethod().toString())){
+                this.serverModel = mockServerModel;
+                break;
+            }
+
+        }
+
+        if (serverModel == null || !httpMethod.equalsIgnoreCase(serverModel.getHttpMethod().toString())) {
             sendResponse(exchange, 405, "Method Not Allowed");
             return false;
         }
