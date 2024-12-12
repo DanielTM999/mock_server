@@ -1,15 +1,15 @@
 package dtm.mock.Server;
 
 import java.io.File;
-import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import com.sun.net.httpserver.HttpServer;
+import dtm.mock.Server.http.HttpServer;
 import dtm.mock.anotations.MockHttpRouteConfiguaration;
 import dtm.mock.core.MockServer;
 import dtm.mock.core.enums.HttpMethod;
+
 
 public class MockServerHttp implements MockServer{
     private HttpServer server;  
@@ -100,11 +100,9 @@ public class MockServerHttp implements MockServer{
 
     @Override
     public void run() throws Exception{
-        server = HttpServer.create(new InetSocketAddress(port), 0);
-        server.createContext("/", new MockServerhandler(this.mockEndpoints));
-        server.setExecutor(null);
-        server.start();
-        System.out.println(String.format("Servidor MOCK rodando na porta %d...", port));
+        server = new HttpServer(port);
+
+        server.start(new MockServerhandler(mockEndpoints), String.format("Servidor MOCK rodando na porta %d...", port));
     }
 
     private String readJson(String path) throws Exception{

@@ -1,16 +1,16 @@
 package dtm.mock.Server;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.List;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-
 import dtm.mock.anotations.MockHttpStatusCode;
+import dtm.mock.core.http.HttpAction;
+import dtm.mock.core.http.HttpRequest;
+import dtm.mock.core.http.HttpResponse;
 
-public class MockServerhandler implements HttpHandler{
+
+
+public class MockServerhandler implements HttpAction{
     private List<MockServerModel> serverModelList;
     private MockServerModel serverModel;
 
@@ -19,30 +19,32 @@ public class MockServerhandler implements HttpHandler{
     }
 
     @Override
-    public void handle(HttpExchange exchange) throws IOException {
-        if(validEndPoint(exchange)){
-            String response = "{}";
-            int statusCode = 200;
-            if(serverModel.getResponse() != null){
-                if(serverModel.getResponse() instanceof String){
-                    response = serverModel.getResponse().toString();
-                    exchange.sendResponseHeaders(statusCode, response.length());
-                }else{
-                    try {
-                        ObjectMapper mapper = new ObjectMapper();
-                        response = mapper.writeValueAsString(serverModel.getResponse());
-                        statusCode = getCode(serverModel.getResponse());
-                    } catch (Exception e) {
-                        String error = "{\"serverError\": \"%s\"}";
-                        response = String.format(error, (e.getMessage() == null) ? "" : e.getMessage());
-                        statusCode = 500;
+    public void execute(HttpRequest request, HttpResponse response){
+        try {
+            if(validEndPoint(response, request)){
+                String responseValue = "{}";
+                int statusCode = 200;
+                
+                if(serverModel.getResponse() != null){
+                    if(serverModel.getResponse() instanceof String){
+                        responseValue = serverModel.getResponse().toString();
+                    }else{
+                        try {
+                            ObjectMapper mapper = new ObjectMapper();
+                            responseValue = mapper.writeValueAsString(serverModel.getResponse());
+                            statusCode = getCode(serverModel.getResponse());
+                        } catch (Exception e) {
+                            String error = "{\"serverError\": \"%s\"}";
+                            responseValue = String.format(error, (e.getMessage() == null) ? "" : e.getMessage());
+                            statusCode = 500;
+                        }
                     }
-                    exchange.sendResponseHeaders(statusCode, response.length());
+    
+                    sendResponse(response, statusCode, responseValue);
                 }
             }
-            OutputStream os = exchange.getResponseBody();
-            os.write(response.getBytes());
-            os.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -54,14 +56,14 @@ public class MockServerhandler implements HttpHandler{
         return 200;
     }
     
-    private boolean validEndPoint(HttpExchange exchange) throws IOException{
-        String requestedEndpoint = exchange.getRequestURI().getPath();
-        String httpMethod = exchange.getRequestMethod();
+    private boolean validEndPoint(HttpResponse exchange, HttpRequest req) throws IOException{
+        String requestedEndpoint = req.getRoute();
+        String httpMethod = req.getHtttpMethod();
 
         for (MockServerModel mockServerModel : serverModelList) {
-            String endpointPattern = serverModel.getEndpoint().replaceAll("\\{[^/]+\\}", "[^/]+");
-            
-            if(requestedEndpoint.matches(endpointPattern) && httpMethod.equalsIgnoreCase(serverModel.getHttpMethod().toString())){
+            String endpointPattern = mockServerModel.getEndpoint().replaceAll("\\{[^/]+\\}", "[^/]+");
+
+            if(requestedEndpoint.matches(endpointPattern)){
                 this.serverModel = mockServerModel;
                 break;
             }
@@ -83,11 +85,10 @@ public class MockServerhandler implements HttpHandler{
         return true;
     }
 
-    private void sendResponse(HttpExchange exchange, int statusCode, String responseBody) throws IOException {
-        exchange.sendResponseHeaders(statusCode, responseBody.length());
-        OutputStream os = exchange.getResponseBody();
-        os.write(responseBody.getBytes());
-        os.close();
+    private void sendResponse(HttpResponse resp, int statusCode, String responseBody) throws IOException {
+        resp.statusCode(statusCode);
+        resp.append(responseBody);
     }
+
 
 }
