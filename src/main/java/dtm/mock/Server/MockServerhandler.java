@@ -1,7 +1,10 @@
 package dtm.mock.Server;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dtm.mock.anotations.MockHttpStatusCode;
 import dtm.mock.core.http.HttpAction;
@@ -40,7 +43,9 @@ public class MockServerhandler implements HttpAction{
                         }
                     }
     
-                    sendResponse(response, statusCode, responseValue);
+                    sendResponse(response, statusCode, responseValue, new HashMap<>(){{
+                        put("Content-Type", "application/json");
+                    }});
                 }
             }
         } catch (Exception e) {
@@ -90,5 +95,12 @@ public class MockServerhandler implements HttpAction{
         resp.append(responseBody);
     }
 
+    private void sendResponse(HttpResponse resp, int statusCode, String responseBody, Map<String, String> headers) throws IOException {
+        resp.statusCode(statusCode);
+        for (Map.Entry<String, String> entry: headers.entrySet()) {
+            resp.addHeader(entry.getKey(), entry.getValue());
+        }
+        resp.append(responseBody);
+    }
 
 }
