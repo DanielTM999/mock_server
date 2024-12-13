@@ -77,7 +77,12 @@ public class MockServerhandler implements RouteExecutor{
 
         }
 
-        if (serverModel == null || !httpMethod.equalsIgnoreCase(serverModel.getHttpMethod().toString())) {
+        if(serverModel == null){
+            sendResponse(exchange, 404, "Not Found");
+            return false;
+        }
+
+        if (!httpMethod.equalsIgnoreCase(serverModel.getHttpMethod().toString())) {
             sendResponse(exchange, 405, "Method Not Allowed");
             return false;
         }
