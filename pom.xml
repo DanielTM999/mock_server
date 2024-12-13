@@ -12,7 +12,6 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <lombok.version>1.18.34</lombok.version>
-        <quarkserver.version>1.0.0</quarkserver.version>
         <jackson.databind.version>2.18.2</jackson.databind.version>
     </properties>
 
@@ -28,13 +27,6 @@
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.databind.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>dtm.servers</groupId>
-            <artifactId>quarkserver</artifactId>
-            <version>${quarkserver.version}</version>
-        </dependency>
-
     </dependencies>
 
 </project>

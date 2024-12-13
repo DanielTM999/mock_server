@@ -1,4 +1,5 @@
-package dtm.mock.Server;
+package dtm.mock.server;
+
 
 import java.io.File;
 import java.nio.file.Files;
@@ -8,8 +9,8 @@ import java.util.List;
 import dtm.mock.anotations.MockHttpRouteConfiguaration;
 import dtm.mock.core.MockServer;
 import dtm.mock.core.enums.HttpMethod;
-import dtm.servers.http.core.HttpServer;
-import dtm.servers.http.io.HttpServerIO;
+import dtm.mock.server.quarkserver.core.HttpServer;
+import dtm.mock.server.quarkserver.io.HttpServerIO;
 
 
 public class MockServerHttp implements MockServer{

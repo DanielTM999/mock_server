@@ -1,4 +1,4 @@
-package dtm.mock.Server;
+package dtm.mock.server;
 
 import dtm.mock.core.enums.HttpMethod;
 import lombok.Data;

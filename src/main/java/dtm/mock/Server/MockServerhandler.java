@@ -1,16 +1,15 @@
-package dtm.mock.Server;
+package dtm.mock.server;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dtm.mock.anotations.MockHttpStatusCode;
-import dtm.servers.http.core.HttpConnection;
-import dtm.servers.http.core.HttpServerRequest;
-import dtm.servers.http.core.HttpServerResponse;
-import dtm.servers.http.core.RouteExecutor;
+import dtm.mock.server.quarkserver.core.HttpConnection;
+import dtm.mock.server.quarkserver.core.HttpServerRequest;
+import dtm.mock.server.quarkserver.core.HttpServerResponse;
+import dtm.mock.server.quarkserver.core.RouteExecutor;
 
 
 
