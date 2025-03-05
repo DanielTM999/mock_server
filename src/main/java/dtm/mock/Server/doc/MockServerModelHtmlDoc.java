@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import dtm.mock.server.MockServerModel;
 
 public final class MockServerModelHtmlDoc extends MockServerModel{
@@ -20,6 +22,7 @@ public final class MockServerModelHtmlDoc extends MockServerModel{
                 .append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">")
                 .append("<title>Mock API Documentation</title>")
                 .append(getCss())
+                .append(getPrismJs())
             .append("</head>")
 
             .append("<body>")
@@ -33,7 +36,9 @@ public final class MockServerModelHtmlDoc extends MockServerModel{
                 .append(mockServerModel.getHttpMethod()).append("</span>")
                 .append(" <strong>").append(mockServerModel.getEndpoint()).append("</strong>")
                 .append("<div class='response-box'><strong>Response:</strong> ")
-                .append("<pre>").append(mockServerModel.getResponse()).append("</pre>")
+                .append("<pre><code class='language-json'>")
+                .append(getResponseString(mockServerModel.getResponse()))
+                .append("</code></pre>")
                 .append("</div>")
                 .append("</div>");
         }
@@ -43,7 +48,7 @@ public final class MockServerModelHtmlDoc extends MockServerModel{
         return htmlBuilder.toString();
     }
 
-    private String getCss(){
+    private String getCss() {
         return """
             <style>
                 body {
@@ -87,8 +92,29 @@ public final class MockServerModelHtmlDoc extends MockServerModel{
                     white-space: pre-wrap;
                     font-family: monospace;
                 }
+                pre { overflow-x: auto; }
             </style>
         """;
+    }
+
+    private String getPrismJs() {
+        return """
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+        """;
+    }
+
+    private String getResponseString(Object response){
+        try{
+            return new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(response);
+        }catch(Exception e1){
+            try {
+                return response.toString();
+            } catch (Exception e2) {
+                return "unknow response";
+            }
+        }
     }
 
     @SuppressWarnings("unchecked")
