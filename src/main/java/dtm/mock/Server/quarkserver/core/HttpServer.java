@@ -8,5 +8,6 @@ public interface HttpServer {
     void enablePrintTrace();
     void setConfiguration(ServerConfiguration configuration);
     void setRouteExecutor(RouteExecutor routeExecutor);
+    void start(Runnable onStart);
     void start();
 }

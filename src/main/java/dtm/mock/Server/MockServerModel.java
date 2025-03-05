@@ -8,4 +8,5 @@ public class MockServerModel {
     private String endpoint;
     private HttpMethod httpMethod;
     private Object response;
+    private String type;
 }

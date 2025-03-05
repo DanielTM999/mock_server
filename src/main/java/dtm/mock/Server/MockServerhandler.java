@@ -31,7 +31,7 @@ public class MockServerhandler implements RouteExecutor{
                 int statusCode = 200;
                 
                 if(serverModel.getResponse() != null){
-                    if(serverModel.getResponse() instanceof String){
+                    if(serverModel.getResponse() instanceof String || serverModel.getType().equalsIgnoreCase("text")){
                         responseValue = serverModel.getResponse().toString();
                     }else{
                         try {
@@ -44,9 +44,12 @@ public class MockServerhandler implements RouteExecutor{
                             statusCode = 500;
                         }
                     }
-    
                     sendResponse(responseServer, statusCode, responseValue, new HashMap<>(){{
-                        put("Content-Type", "application/json");
+                        if(serverModel.getType().equalsIgnoreCase("json")){
+                            put("Content-Type", "application/json");
+                        }else {
+                            put("Content-Type", "text/html");
+                        }
                     }});
                 }
             }

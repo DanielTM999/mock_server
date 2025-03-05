@@ -34,10 +34,14 @@ public final class HttpServerIO implements HttpServer{
     
     @Override
     public void start() {
+        start(null);
+    }
+
+    @Override
+    public void start(Runnable onStart) {
         try {
             asynchronousServerSocketChannel = AsynchronousServerSocketChannel.open();
             asynchronousServerSocketChannel.bind(this.inetSocketAddress);
-            print("server running on "+host+":"+port, "INFO", printTrace);
             if(routeExecutor == null){
                 print("routeExecutor is not Defined", "ERROR", true);
                 print("Exit", "ERROR", true);
@@ -48,6 +52,10 @@ public final class HttpServerIO implements HttpServer{
             }
 
             asynchronousServerSocketChannel.accept(null, new ClienteConnectionHandler<Void>(null, routeExecutor, configuration, asynchronousServerSocketChannel));
+            print("server running on: http://"+host+":"+port, "INFO", printTrace);
+            if(onStart != null){
+                onStart.run();
+            }
             while (true) {
                 Thread.sleep(500);
             }

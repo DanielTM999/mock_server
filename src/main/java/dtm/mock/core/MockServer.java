@@ -9,5 +9,10 @@ public interface MockServer {
     void registerEndpoint(Object mockResponse);
     void registerEndpoint(Class<?> mockResponse);
     void setPort(int port);
+    int getPort();
     void run() throws Exception;
+    void run(Runnable onStart) throws Exception;
+    void enableJsonDoc(String endpoint);
+    void enableHtmlDoc(String endpoint);
+    void enableServerPrintTrace();
 }
